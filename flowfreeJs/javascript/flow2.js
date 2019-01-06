@@ -15,6 +15,7 @@
         _init = function () {
             var myLevels = {
                 '3': ['a1abc2bc'],
+                '5': ['aa2d4cb1ed4e2b2c'],
                 '8': ['2b7gfe5d10d1f3b1g2e1c2ca1h3a5h5'],
                 '15': ['abb2a1c2c12v6d7w1ee2x2d1ff2y18w9g7hh4i14i3j1k2l13ml1n6j7n1o10pp2o1q8r10yk13x2m1rvg2ss2qt2u']
             };
@@ -22,7 +23,8 @@
             levels = ['a1abc2bc', 'c1ce3a2a3b4b2edd', 'd2faad2c2eef5c8b5b', '2b7gfe5d10d1f3b1g2e1c2ca1h3a5h5', '4o1i9l6a11eb5g5e20j2g26n9f1f9l7h1o7n10j7c6pd3mc4h5p6im3kad23b2k1'];
 
             // _loadLevel(levels[Math.floor(Math.random() * levels.length)]);
-            _loadLevel(myLevels['15'][0]);
+          //  _loadLevel(myLevels['5'][0]);
+          _loadLevel((new Level(5)).getLevel());
             var grid = document.querySelector('.grid');
 
             _size = parseInt(grid.getAttribute('data-size'));
@@ -46,7 +48,7 @@
         },
         _loadLevel = function (s) {
             var data = [];
-
+            console.log(s);
             while (s.length) {
                 s = s.replace(/^\d+|[a-z]/i, function (x) {
                     if (parseInt(x)) {
@@ -60,11 +62,13 @@
                     return '';
                 });
             }
-
+            
+            console.log(data);
             var grid = document.querySelector('.grid'),
                 size = Math.sqrt(data.length);
 
             if (size !== parseInt(size)) {
+                
                 // throw 'Invalid grid definition.'; //
                 console.error('Invalid grid definition.');
 
