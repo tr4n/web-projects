@@ -282,6 +282,7 @@ function Level(_size) {
       };
 
       let _createFlowFromSpecialPosition = function (_grid) {
+         if(specialPosition == null) return; 
          let flow = _createFlow(_grid, specialPosition.first, specialPosition.second);
          if (flow != null && flow.length > 0) {
             flows.push(flow);
