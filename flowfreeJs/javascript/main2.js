@@ -320,8 +320,8 @@ function Level(_size) {
          max = min + Math.floor(FlowManager.getLongest(flows).value / 3),
          target = _caculateNumberFlows(min, max > 26 ? 26 : max);
 
-        FlowManager.divideFlows(flows, target);
-     // FlowManager.divideFlows(flows, size);
+      //  FlowManager.divideFlows(flows, target);
+      FlowManager.divideFlows(flows, size);
       return flows;
 
    }

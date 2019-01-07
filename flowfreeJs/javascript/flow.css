@@ -287,3 +287,9 @@ body {
 .grid>div[data-id="16"] {
     background-color: #fc2293;
 }
+.grid>div[data-id="17"] {
+    background-color: #dfaec7;
+}
+.grid>div[data-id="18"] {
+    background-color: #af1ec7;
+}
