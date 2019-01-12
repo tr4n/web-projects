@@ -22,7 +22,7 @@ let Random = {
 
    getInt(_first, _second) {
       // get an integer in [_first,_second)      
-      return _first >= _second ? 0 : _first + Math.floor((_second - _first) * Math.random());
+      return _first >= _second ? _second : _first + Math.floor((_second - _first) * Math.random());
    }
 }
 /*

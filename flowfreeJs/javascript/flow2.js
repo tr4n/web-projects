@@ -24,7 +24,7 @@
 
             // _loadLevel(levels[Math.floor(Math.random() * levels.length)]);
           //  _loadLevel(myLevels['5'][0]);
-          _loadLevel((new Level(Random.getInt(2,16))).getLevel());
+          _loadLevel((new Level(Random.getInt(4,10))).getLevel());
             var grid = document.querySelector('.grid');
 
             _size = parseInt(grid.getAttribute('data-size'));

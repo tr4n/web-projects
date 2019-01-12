@@ -1,523 +1,446 @@
-var Random = {
-    nextInt(maxValue) {
-        return Math.floor(maxValue * Math.random());
-    }
-}
+/*
+ * -------------------------Const-------------------------------
+ */
 
-var PointManager = {
-    getDefaultPoint() {
-        return {
-            x: 0,
-            y: 0
-        };
-    },
-    newPoint(_x, _y) {
-        return {
-            x: _x,
-            y: _y
-        };
-    },
-
-    getX(point) {
-        if (point == null) return null;
-        return point.x;
-    },
-
-    getY(point) {
-        if (point == null) return null;
-        return point.y;
-    }
-}
-
-
-
-var FlowManager = {
-    getDefaultFlow() {
-        return {
-            pointArray: []
-        };
-    },
-
-    newFlow(_pointArray) {
-        return {
-            pointArray: _pointArray
-        };
-    },
-
-    length(flow) {
-        return flow == null ? null : flow.pointArray;
-    },
-
-    length(flow) {
-        if (flow == null) return -1;
-
-        if (flow.pointArray == null) return -1;
-        return flow.pointArray.length;
-    },
-
-    getHead(flow) {
-        if (flow == null) return -1;
-        if (flow.pointArray == null) return -1;
-        if (flow.pointArray.length < 1) return -1;
-        return flow.pointArray[0];
-    },
-
-    getTail(flow) {
-        if (flow == null) return -1;
-        if (flow.pointArray == null) return -1;
-        if (flow.pointArray.length < 1) return -1;
-        return flow.pointArray[flow.pointArray.length - 1];
-    },
-
-    add(flow, position) {
-        flow.pointArray.push(position);
-        return position;
-    },
-
-    split(flow, index) {
-        return [{
-                pointArray: (flow.pointArray.slice(0, index))
-            },
-            {
-                pointArray: (flow.pointArray.slice(index, this.length(flow)))
-            }
-        ];
-
-    },
-
-    getMaxLength(flowArray) {
-
-        let maxIndex = 0,
-            maxLength = this.length(flowArray[0]);
-        flowArray.forEach((flow, index) => {
-            if (this.length(flow) > maxLength) {
-                maxLength = this.length(flow);
-                maxIndex = index;
-            }
-        });
-
-        return {
-            index: maxIndex,
-            value: maxLength
-        };
-    },
-
-    getFinalFlowArray(input, finalSize) {
-        let output = [];
-        let tempArray = [];
-
-        output.push.apply(output, input);
-        let currentSize = input.length;
-
-
-        while (currentSize < finalSize) {
-            //  console.log("currentSize: " + currentSize + " finalSize: " + finalSize);
-
-            tempArray.length = 0;
-            tempArray.push.apply(tempArray, output);
-            output.length = 0;
-            let index = this.getMaxLength(tempArray).index;
-            let flow = tempArray[index];
-            output.push.apply(output, tempArray.slice(0, index));
-            output.push.apply(output, tempArray.slice(index + 1));
-
-            if (this.length(flow) > 4) {
-                let randomPosition = Random.nextInt(this.length(flow) - 4);
-                output.push.apply(output, this.split(flow, randomPosition + 2));
-
-                currentSize++;
-            } else if (this.length(flow) == 4) {
-                output.push.apply(output, this.split(flow, 2));
-                currentSize++;
-            } else {
-                output.push(flow);
-                break;
-            }
-
-
-
-        }
-
-
-        return output;
-    }
-
-
-}
-
-var Constants = {
+let Const = {
     FILL_COLOR: 1432,
     CREATE_FLOW: 1234,
     RANDOM_DIRECTS: ["1230", "2301", "3012", "0123", "1032", "2103", "3021", "0213", "1320"],
     DIRECT_X: [0, -1, 0, 1],
-    DIRECT_Y: [1, 0, -1, 0]
+    DIRECT_Y: [1, 0, -1, 0],
+    FILLED_FLOW: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+}
+/*
+ * -------------------------Random-------------------------------
+ */
+
+
+
+
+let Random = {
+    nextInt(_value) {
+        //get an integer in [0,_value)
+        return _value <= 0 ? 0 : Math.floor(_value * Math.random());
+    },
+
+    getInt(_first, _second) {
+        // get an integer in [_first,_second)      
+        return _first >= _second ? _second : _first + Math.floor((_second - _first) * Math.random());
+    }
+}
+
+/* 
+ * Square 
+ */
+let Square = function (_first, _second, _third, _forth) {
+    this.first = _first;
+    this.second = _second;
+    this.third = _third;
+    this.forth = _forth;
+
+    this.getSquares = function (_position, _size) {
+        let _isInside = (_x, _y) => (0 <= _x && _x < _size && 0 <= _y && _y < _size);
+        let _squares = [];
+        let x = Math.floor(_position / _size),
+            y = _position % _size;
+        let X = [-1, -1, -1, 0, 0, 0, 1, 1, 1],
+            Y = [-1, 0, 1, -1, 0, 1, -1, 0, 1];
+        let _points = [];
+
+        for (let index = 0; index < 9; index++) {
+            _points.push(new Pair(x + X[index], y + Y[index]));
+        }
+
+        if ([_points[0], _points[1], _points[3]].every(element => _isInside(element.first, element.second))) {
+            _squares.push(new Square(_points[0].value(_size), _points[1].value(_size), _points[3].value(_size), _position));
+        }
+
+        if ([_points[1], _points[2], _points[5]].every(element => _isInside(element.first, element.second))) {
+            _squares.push(new Square(_points[1].value(_size), _points[2].value(_size), _position, _points[5].value(_size)));
+        }
+
+        if ([_points[3], _points[6], _points[7]].every(element => _isInside(element.first, element.second))) {
+            _squares.push(new Square(_points[3].value(_size), _position, _points[6].value(_size), _points[7].value(_size)));
+        }
+
+        if ([_points[5], _points[7], _points[8]].every(element => _isInside(element.first, element.second))) {
+            _squares.push(new Square(_position, _points[5].value(_size), _points[7].value(_size), _points[8].value(_size)));
+        };
+        return _squares;
+
+    }
+}
+
+/*
+ * -------------------------Pair-------------------------------
+ */
+function Pair(_first, _second) {
+    this.first = _first;
+    this.second = _second;
+    this.value = (size) => (this.first * size + this.second);
+    this.equals = (other) => (this.first === other.first && this.second === other.second);
+
+}
+/*
+ * -------------------------Grid-------------------------------
+ */
+
+function Grid(_size) {
+    this.size = _size;
+    this.grid = [];
+
+    for (let line = 0; line < _size; line++) {
+        let _line = [];
+        for (let col = 0; col < _size; col++) {
+            _line.push(-1);
+        }
+        this.grid.push(_line);
+    }
+
+}
+
+/* 
+ * ------------------------ Domino --------------
+ */
+let Domino = function(_first, _second){
+    this.first = _first;
+    this.second = _second; 
+    
 }
 
 
+/*
+ * -----------------------FlowManager-------------------------------
+ */
 
-var ResultFlows = {
-    pointNumber: 0,
-    width: 5,
-    height: 5,
-    specialPoint: null,
-    table: [],
-    flowArray: [],
-    finalFlowList: [],
-    flowNumber: -2,
-    numberFlows: 5,
+let FlowManager = {
+    split(_flow, _position) {
+        return (_position == 0 || _position == _flow.length) ?
+            null : [firstFlow = _flow.slice(0, _position),
+                secondFlow = _flow.slice(_position)
+            ];
 
-    getNewTable() {
-        let tempTable = [];
-        for (let _line = 0; _line < this.height; _line++) {
-            let tempArray = [];
-            for (let _col = 0; _col < this.width; _col++) {
-                tempArray.push([]);
+
+    },
+
+    getLongest(_flows) {
+
+        let longestIndex = 0,
+            longestValue = _flows[0].length;
+        _flows.forEach((flow, index) => {
+            if (flow.length > longestValue) {
+                longestValue = flow.length;
+                longestIndex = index;
             }
-            tempTable.push(tempArray);
+        });
+        return {
+            index: longestIndex,
+            value: longestValue
+        }
+    },
+
+    divideFlows(_flows, _target) {
+
+        let output = [],
+            temp = [],
+            current = _flows.length;
+        Array.prototype.push.apply(output, _flows);
+
+        while (current < _target) {
+            temp.length = 0;
+            Array.prototype.push.apply(temp, output);
+            output.length = 0;
+
+            let index = this.getLongest(temp).index,
+                flow = temp[index],
+                length = flow.length;
+
+
+            Array.prototype.push.apply(output, temp.slice(0, index));
+            Array.prototype.push.apply(output, temp.slice(index + 1));
+
+            if (length > 5) {
+                let divisivePosition = Random.nextInt(length - 6);
+                Array.prototype.push.apply(output, this.split(flow, divisivePosition + 3));
+                current++;
+            } else {
+                output.push(flow);
+                break;
+            }
+        }
+        _flows.length = 0;
+        Array.prototype.push.apply(_flows, output);
+        return output;
+    }
+}
+
+
+/*
+ * ------------------------Level-------------------------------------------
+ */
+
+function Level(_size) {
+    let size = _size,
+        flows = [],
+        specialPosition = null;
+
+
+
+
+    let _isInside = (_x, _y) => (0 <= _x && _x < size && 0 <= _y && _y < size);
+
+
+
+    let _isInvalid = function (position, color) {
+
+
+    }
+
+    let _fillDominos = function () {
+        let _findSpecialPosition = function (_grid) {
+            for (let line = 0; line < size; line++) {
+                for (let col = 0; col < size; col++) {
+                    if (_grid[line][col] == -1) {
+                        return (new Pair(line, col));
+                    }
+                }
+            }
+            return null;
+        };
+
+        let grid = (new Grid(size)).grid,
+            domino = 0;
+
+        for (let line = 0; line < size; line++) {
+            for (let col = 0; col < size; col++) {
+                if (grid[line][col] == -1) {
+                    if (line == size - 1 && col > 1 && grid[line][col - 1] == -1) {
+                        grid[line][col] = grid[line][col - 1] = domino++;
+
+                    } else if (col == size - 1 && line > 1 && grid[line - 1][col] == -1) {
+                        grid[line][col] = grid[line - 1][col] = domino++;
+                    } else {
+                        let orderDirects = Const.RANDOM_DIRECTS[Random.nextInt(Const.RANDOM_DIRECTS.length)];
+
+                        Array.from(orderDirects).every(element => {
+                            let dir = parseInt(element);
+
+                            let x = line + Const.DIRECT_X[dir],
+                                y = col + Const.DIRECT_Y[dir];
+                            if (_isInside(x, y) && grid[x][y] == -1) {
+                                grid[line][col] = grid[x][y] = domino++;
+                                return false;
+                            }
+                            return true;
+                        });
+                    }
+                }
+
+            }
 
         }
-        return tempTable;
-    },
+        specialPosition = _findSpecialPosition(grid);
+        return grid;
 
-    isInside(currentX, currentY) {
-        return (0 <= currentX && currentX < this.height && 0 <= currentY && currentY < this.width);
-    },
+    };
 
-    getSpecialPosition(_table) {
-        for (let _line = 0; _line < this.height; _line++) {
-            for (let _col = 0; _col < this.width; _col++) {
-                if (_table[_line][_col] == -1) {
-                    return PointManager.newPoint(_line, _col);
+
+
+    let _fillColors = function () {
+        let positionInFlow = 0,
+            flowCode = -2;
+        let _fillColor = function (_grid, _x, _y, isDomino) {
+            if (isDomino) {
+                for (let dir = 0; dir < 4; dir++) {
+                    let x = _x + Const.DIRECT_X[dir],
+                        y = _y + Const.DIRECT_Y[dir];
+
+                    if (_isInside(x, y) && _grid[x][y] >= 0 && _grid[x][y] == _grid[_x][_y]) {
+                        _grid[_x][_y] = flowCode * 100 - positionInFlow++;
+                        _grid[x][y] = flowCode * 100 - positionInFlow++;
+                        _fillColor(_grid, x, y, false);
+                        return;
+                    }
+                }
+            } else {
+                let orderDirects = Const.RANDOM_DIRECTS[Random.nextInt(Const.RANDOM_DIRECTS.length)];
+
+                Array.from(orderDirects).every(element => {
+                    let dir = parseInt(element);
+
+                    let x = _x + Const.DIRECT_X[dir],
+                        y = _y + Const.DIRECT_Y[dir];
+                    if (_isInside(x, y) && grid[x][y] >= 0) {
+                        _fillColor(_grid, x, y, true);
+                        return false;
+                    }
+                    return true;
+                });
+            }
+        };
+
+        let _fillColorSpecialPoint = function (_grid) {
+            if (specialPosition == null) return;
+
+            let first = specialPosition.first,
+                second = specialPosition.second,
+                orderDirects = Const.RANDOM_DIRECTS[Random.nextInt(Const.RANDOM_DIRECTS.length)];
+
+            flowCode = -2;
+            positionInFlow = 0;
+
+            Array.from(orderDirects).every(element => {
+                let dir = parseInt(element);
+                let x = first + Const.DIRECT_X[dir],
+                    y = second + Const.DIRECT_Y[dir];
+                if (_isInside(x, y) && grid[x][y] >= 0) {
+                    _grid[first][second] = flowCode * 100 - positionInFlow++;
+                    _fillColor(_grid, x, y, true);
+                    return false;
+                }
+                return true;
+            });
+            flowCode--;
+        }
+
+
+        let grid = _fillDominos();
+        _fillColorSpecialPoint(grid);
+
+        for (let line = 0; line < size; line++) {
+            for (let col = 0; col < size; col++) {
+                if (grid[line][col] > -2) {
+                    positionInFlow = 0;
+                    _fillColor(grid, line, col, true);
+                    flowCode--;
                 }
             }
         }
-        return null;
-    },
+        return grid;
+    };
 
-    initResultFlows(_width, _height) {
-        this.width = _width;
-        this.height = _height;
-        this.table = this.getTable();
-        return this.finalFlowList;
+    let _fillFlows = function () {
+        let _createFlow = function (_grid, _x, _y) {
+            let x = _x,
+                y = _y,
+                isEndOfFlow = false;
 
-    },
-
-    getDominoTable() {
-        let tempTable = this.getNewTable();
-        for (let _line = 0; _line < this.height; _line++) {
-            for (let _col = 0; _col < this.width; _col++) {
-                tempTable[_line][_col] = -1;
-            }
-        }
-
-        let dominoNumber = 0;
-        for (let _line = 0; _line < this.height; _line++) {
-            for (let _col = 0; _col < this.width; _col++) {
-                if (tempTable[_line][_col] == -1) {
-                    if (_line == this.height - 1 && _col > 1 && tempTable[_line][_col - 1] == -1) {
-                        tempTable[_line][_col] = tempTable[_line][_col - 1] = dominoNumber++;
-                    } else if (_col == this.width - 1 && _line > 1 && tempTable[_line - 1][_col] == -1) {
-                        tempTable[_line][_col] = tempTable[_line - 1][_col] = dominoNumber++;
-                    } else {
-                        let k = Random.nextInt(Constants.RANDOM_DIRECTS.length);
-                        for (let index = 0; index < 4; index++) {
-                            let dir = ((Constants.RANDOM_DIRECTS[k][index]).charCodeAt(0) - ('0').charCodeAt(0));
-                            let checkX = _line + Constants.DIRECT_X[dir],
-                                checkY = _col + Constants.DIRECT_Y[dir];
-                            if (!this.isInside(checkX, checkY, this.width, this.height)) continue;
-                            if (tempTable[checkX][checkY] != -1) continue;
-                            tempTable[_line][_col] = tempTable[checkX][checkY] = dominoNumber++;
+            flow = [];
+            while (!isEndOfFlow) {
+                let positionInFlow = _grid[x][y];
+                _grid[x][y] = Const.FILLED_FLOW[Math.floor(-positionInFlow / 100)];
+                flow.push(x * size + y);
+                isEndOfFlow = true;
+                for (let dir = 0; dir < 4; dir++) {
+                    let nextX = x + Const.DIRECT_X[dir],
+                        nextY = y + Const.DIRECT_Y[dir];
+                    if (_isInside(nextX, nextY)) {
+                        if (_grid[nextX][nextY] == positionInFlow - 1) {
+                            x = nextX;
+                            y = nextY;
+                            isEndOfFlow = false;
                             break;
                         }
                     }
                 }
+
             }
-        }
-        this.specialPoint = this.getSpecialPosition(tempTable);
+            return flow;
+        };
 
-        return tempTable;
-
-    },
-
-    fillFlow(_table, x, y) {
-
-        flow = FlowManager.getDefaultFlow();
-        let tmpX = x,
-            tmpY = y;
-        let isEndOfPoint = false;
-        while (!isEndOfPoint) {
-            let _flowNumber = _table[tmpX][tmpY];
-            _table[tmpX][tmpY] = 1;
-            FlowManager.add(flow, tmpX * this.width + tmpY);
-            isEndOfPoint = true;
-            for (let dir = 0; dir < 4; dir++) {
-                let nextX = tmpX + Constants.DIRECT_X[dir],
-                    nextY = tmpY + Constants.DIRECT_Y[dir];
-                if (this.isInside(nextX, nextY)) {
-                    if (_table[nextX][nextY] == _flowNumber - 1) {
-                        tmpX = nextX;
-                        tmpY = nextY;
-                        isEndOfPoint = false;
-                        break;
-                    }
-                }
+        let _createFlowFromSpecialPosition = function (_grid) {
+            if (specialPosition == null) return;
+            let flow = _createFlow(_grid, specialPosition.first, specialPosition.second);
+            if (flow != null && flow.length > 0) {
+                flows.push(flow);
             }
+        };
 
-        }
-        return flow;
-
-    },
-
-
-    fillColor(_table, x, y, isBeginDomino) {
-        if (isBeginDomino) {
-            for (let dir = 0; dir < 4; dir++) {
-                let nextX = x + Constants.DIRECT_X[dir],
-                    nextY = y + Constants.DIRECT_Y[dir];
-                if (this.isInside(nextX, nextY)) {
-                    if (_table[nextX][nextY] >= 0 && _table[nextX][nextY] == _table[x][y]) {
-                        _table[x][y] = this.flowNumber * 100 - this.pointNumber++;
-                        _table[nextX][nextY] = this.flowNumber * 100 - this.pointNumber++;
-                        this.fillColor(_table, nextX, nextY, false);
-                        return;
+        let grid = _fillColors();
+        _createFlowFromSpecialPosition(grid);
+        for (let line = 0; line < size; line++) {
+            for (let col = 0; col < size; col++) {
+                if (grid[line][col] < 0) {
+                    let flow = _createFlow(grid, line, col);
+                    if (flow != null && flow.length > 0) {
+                        flows.push(flow);
                     }
                 }
 
             }
-        } else {
-            let index = Random.nextInt(Constants.RANDOM_DIRECTS.length);
-            for (let i = 0; i < 4; i++) {
-                let dir = ((Constants.RANDOM_DIRECTS[index][i]).charCodeAt(0) - ('0').charCodeAt(0));
-                let nextX = x + Constants.DIRECT_X[dir],
-                    nextY = y + Constants.DIRECT_Y[dir];
-                if (this.isInside(nextX, nextY)) {
-                    if (_table[nextX][nextY] >= 0) {
-                        this.fillColor(_table, nextX, nextY, true);
-                        return;
-                    }
-                }
-
-            }
-
         }
-    },
+        console.log(flows);
+        return flows;
+    };
 
-    executeSpecialPoint(_table, actionNumber) {
-        if (this.specialPoint == null) return;
-        if (actionNumber == Constants.FILL_COLOR) {
-            this.flowNumber = -2;
+    let _getFlows = function () {
 
-            let first = PointManager.getX(this.specialPoint);
-            let second = PointManager.getY(this.specialPoint);
+        let _caculateNumberFlows = function (_min, _max) {
+            if (_min > _max) return _min;
+            let numberFlows = Random.getInt(_min < size - 1 ? size - 1 : _min, _max > size + 1 ? size + 2 : _max);
+            return Math.random() > 0.5 ? size : numberFlows;
+        };
 
-            this.pointNumber = 0;
-            let index = Random.nextInt(Constants.RANDOM_DIRECTS.length);
-            for (let i = 0; i < 4; i++) {
-                let dir = ((Constants.RANDOM_DIRECTS[index][i]).charCodeAt(0) - ('0').charCodeAt(0));
-                let nextX = first + Constants.DIRECT_X[dir],
-                    nextY = second + Constants.DIRECT_Y[dir];
-                if (this.isInside(nextX, nextY)) {
-                    if (_table[nextX][nextY] >= 0) {
-                        _table[first][second] = this.flowNumber * 100 - this.pointNumber++;
+        _fillFlows();
 
-                        this.fillColor(_table, nextX, nextY, true);
-                        break;
+        let min = flows.length,
+            max = min + Math.floor(FlowManager.getLongest(flows).value / 3),
+            target = _caculateNumberFlows(min, max > 26 ? 26 : max);
 
-                    }
-
-
-                }
-
-
-            }
-            this.flowNumber--;
-        } else {
-            let x = PointManager.getX(this.specialPoint);
-            let y = PointManager.getY(this.specialPoint);
-            let tmpflow = this.fillFlow(_table, x, y);
-            if (tmpflow != null && FlowManager.length(tmpflow) > 0)
-                this.flowArray.push(tmpflow);
-
-        }
-    },
-
-    getFilledColorTable() {
-        let tempTable = this.getDominoTable();
-
-        this.executeSpecialPoint(tempTable, Constants.FILL_COLOR);
-
-        for (let line = 0; line < this.height; line++) {
-            for (let col = 0; col < this.width; col++) {
-                if (tempTable[line][col] > -2) {
-                    this.pointNumber = 0;
-                    this.fillColor(tempTable, line, col, true);
-                    this.flowNumber--;
-                }
-            }
-        }
-        return tempTable;
-    },
-    getNumberFlows(_min, _max) {
-
-        if (_min > _max) return _min;
-        this.numberFlows = _min + Random.nextInt(_max - _min + 1);
-        let root = Math.floor(Math.sqrt(this.width * this.height));
-        return _max > root ? Math.random() > 0.4 ? root : this.numberFlows : this.numberFlows;
-    },
-
-    getTable() {
-
-        let tempTable = this.getFilledColorTable();
-        this.executeSpecialPoint(tempTable, Constants.CREATE_FLOW);
-        for (let line = 0; line < this.height; line++) {
-            for (let col = 0; col < this.width; col++) {
-                if (tempTable[line][col] < 0) {
-                    let tmpFlow = this.fillFlow(tempTable, line, col);
-                    this.flowArray.push(tmpFlow);
-                }
-
-            }
-        }
-
-        let minSize = this.flowArray.length,
-            maxLength = FlowManager.getMaxLength(this.flowArray).value,
-            maxSize = minSize + Math.floor(maxLength / 3),
-            finalSize = this.getNumberFlows(minSize, maxSize > 26 ? 26 : maxSize);
-
-        this.finalFlowList = FlowManager.getFinalFlowArray(this.flowArray, finalSize);
-
-        return tempTable;
+        //  FlowManager.divideFlows(flows, target);
+        FlowManager.divideFlows(flows, size);
+        return flows;
 
     }
 
-
-}
-
-var StateManager = {
-    width: 3,
-    height: 3,
-    value: "A.ABBCC..",
-    result: [0, 1, 2, 3, 4, 5, 8, 7, 6],
-
-    initDefalutState() {
-        return {
-            width: 3,
-            height: 3,
-            value: "A.ABBCC..",
-            result: [0, 1, 2, 3, 4, 5, 8, 7, 6]
-        };
-    },
-
-    initRandomState(_width, _height) {
-        let width = _width,
-            height = _height;
-        let value = "",
-            result = [];
-        let flowList = ResultFlows.initResultFlows(width, height);
-        let valueArray = [];
-        for (let index = 0; index < width * height; index++) {
-            valueArray.push(".");
-        }
-        flowList.forEach((flow, index) => {
-            valueArray[FlowManager.getHead(flow)] = valueArray[FlowManager.getTail(flow)] = String.fromCharCode('A'.charCodeAt(0) + index);
-
-            flow.pointArray.forEach(point => {
-                result.push(point);
-            });
+    this.getLevel = function () {
+        size = _size;
+        _getFlows();
+        let array = [],
+            level = "",
+            count = 0;
+        for (let index = 0; index < size ** 2; index++) array.push(0);
+        flows.forEach((flow, index) => {
+            array[flow[0]] = array[flow[flow.length - 1]] =
+                String.fromCharCode(97 + index);
         });
-        valueArray.forEach(element => {
-            value += element;
-        });
-        return {
-            width: _width,
-            height: _height,
-            value: value,
-            result: result
-        };
 
-    },
-
-    getLevel(state) {
-        let value = state.value; //#endregion
-        let level = "";
-        let count = 0; //#endregion
-        console.log(value);
-        Array.from(value).forEach((element) => {
-            if (element != '.') {
-
-                if (count > 0) {
-                    level += String(count);
-                    count = 0; 
-                };
-                level += (String.fromCharCode(element.charCodeAt(0) - 'A'.charCodeAt(0) + 'a'.charCodeAt(0)));
-            } else {
+        array.forEach((element, index) => {
+            if (element == 0) {
                 count++;
-            };
-
+            } else {
+                level += (count > 0 ? String(count) : "");
+                count = 0;
+                level += element;
+            }
         });
+        level += (count > 0 ? String(count) : "");
         return level;
 
-    },
+    }
 
-    solve(state) {
+    var _loadLevel = function (_s) {
 
-        Show.showState(state);
+        var data = [],
+            s = _s;
 
-        let result = state.result,
-            value = state.value,
-            valueArray = [];
-        let currentChar = 'a';
+        while (s.length) {
+            s = s.replace(/^\d+|[a-z]/i, function (x) {
+                if (parseInt(x)) {
+                    while (x--) {
+                        data.push(0);
+                    }
+                } else {
+                    data.push(parseInt(x, 36) - 9);
+                }
 
-        for (let index = 0; index < state.width * state.height; index++) {
-            valueArray.push('.');
+                return '';
+            });
         }
-        result.forEach(element => {
-            if (value[element] != '.') {
-                valueArray[element] = value[element];
-                currentChar = String.fromCharCode(value[element].charCodeAt(0) - 'A'.charCodeAt(0) + 'a'.charCodeAt(0));
-
-            } else {
-                valueArray[element] = currentChar;
-            }
-        });
-        let newValue = "";
-        valueArray.forEach(element => {
-            newValue += element;
-        });
-        Show.showState({
-            width: state.width,
-            height: state.height,
-            value: newValue,
-            result: state.result
-        });
+        return data.length == size ** 2;
     }
 
 
+};
 
-}
-
-var Show = {
-    showTable(height, table) {
-        for (let i = 0; i < height; i++) {
-            Console.log(table[i]);
-        }
-
-    },
-
-    showState(state) {
-        console.log("---------State----------");
-        let value = state.value;
-        let firstIndex = 0,
-            secondIndex = state.width;
-
-        while (firstIndex < state.height * state.width) {
-            console.log(value.substring(firstIndex, secondIndex));
-            firstIndex += state.width;
-            secondIndex += state.width;
-        }
-    }
-}
-
-var state = (StateManager.initRandomState(15, 15));
-console.log(StateManager.getLevel(state));
-StateManager.solve(state);
+(new Level(5)).getLevel();
