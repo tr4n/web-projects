@@ -201,10 +201,12 @@ function Level(_size) {
             for (let line = 0; line < size; line++) {
                 for (let col = 0; col < size; col++) {
                     if (_grid[line][col] == -1) {
+                        console.log("special point: " + line + " " + col);
                         return (new Pair(line, col));
                     }
                 }
             }
+            
             return null;
         };
 
