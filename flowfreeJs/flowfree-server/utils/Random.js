@@ -1,20 +1,20 @@
-const nextInt = (value) => (value <= 0 ? 0 : Math.floor(Math.random() * value));
+const int = (value) => (value <= 0 ? 0 : Math.floor(Math.random() * value));
 
-const getInt = (first, second) => (first >= second) ? second : first + nextInt(second - first);
+const between = (first, second) => (first >= second) ? second : first + int(second - first);
 
-const getElement = (arrays) => arrays[nextInt(arrays.length)];
+const from = (array) => array[int(array.length)];
 
-const getProperty = (object) => {
-    const key = getElement(Object.keys(object));
+const property = (object) => {
+    const key = from(Object.keys(object));
     return {
         key: key,
         value: object[key]
     }
 };
 
-const getPositionMap = (map) => ({
-    x: nextInt(map.length),
-    y: nextInt(map.length)
+const positionInMap = (map) => ({
+    x: int(map.length),
+    y: int(map.length)
 });
 
 
@@ -22,9 +22,9 @@ const getPositionMap = (map) => ({
 
 
 module.exports = {
-    nextInt,
-    getInt,
-    getElement,
-    getProperty,
-    getPositionMap
+    int: int,
+    between: between,
+    from: from,
+    property: property,
+    positionInMap: positionInMap
 }

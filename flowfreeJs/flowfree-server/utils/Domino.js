@@ -1,3 +1,4 @@
+const fs = require('fs');
 const Collection = require('./Collection');
 const Consts = require('./consts');
 const Random = require('./Random');
@@ -12,7 +13,7 @@ let One = function (_first, _second) {
     this.second = _second;
 }
 
-let get = function (map, position) {
+const locate = function (map, position) {
     const size = map.length,
         x = position.x,
         y = position.y,
@@ -28,26 +29,26 @@ let get = function (map, position) {
         new One(new Point(x, y), new Point(x, 1 + y)) : null;
 }
 
-let getNeighborhood = function (map, domino) {
+const neighborhood = function (map, domino) {
 
     if (domino == null) return null;
     const size = map.length,
-        firstPoint = domino.first,
-        secondPoint = domino.second,
-        type = firstPoint.x == secondPoint.x ? Consts.VERTICAL : Consts.HORIZONTAL;
+        first = domino.first,
+        second = domino.second,
+        type = first.x == second.x ? Consts.VERTICAL : Consts.HORIZONTAL;
     if (type == Consts.VERTICAL) {
-        let x = firstPoint.x + Random.getElement([-1, 1]);
+        let x = first.x + Random.from([-1, 1]);
         if (x <= 0 || x >= size) x = -x;
         if (x > 0 && x < size) {
-            if (map[x][firstPoint.y] == map[x][secondPoint.y])
-                return new One(new Point(x, firstPoint.y), new Point(x, secondPoint.y));
+            if (map[x][first.y] == map[x][second.y])
+                return new One(new Point(x, first.y), new Point(x, second.y));
         }
     } else if (type == Consts.HORIZONTAL) {
-        let y = firstPoint.y + Random.getElement([-1, 1]);
+        let y = first.y + Random.from([-1, 1]);
         if (y <= 0 || y >= size) y = -y;
         if (y > 0 && y < size) {
-            if (map[firstPoint.x][y] == map[secondPoint.x][y])
-                return new One(new Point(firstPoint.x, y), new Point(secondPoint.x, y));
+            if (map[first.x][y] == map[second.x][y])
+                return new One(new Point(first.x, y), new Point(second.x, y));
         }
     }
     return null;
@@ -57,9 +58,17 @@ const swap = function (map, firstDomino, secondDomino) {
     if (firstDomino == null || secondDomino == null) return -1;
     Collection.swap(map, firstDomino.second, secondDomino.first);
 }
+const fillMap = (size) => {
+    let map = (JSON.parse(fs.readFileSync(Consts.MAPS_STORE))[size + ""]),
+        count = Math.floor(size **(1.5));
+    while (count--) {
+        const first = locate(map, Random.positionInMap(map));
+        const second = neighborhood(map, first);
+        swap(map, first, second);
+    }
+    return map;
+};
 
 module.exports = {
-    get,
-    swap,
-    getNeighborhood
+    fillMap
 }
