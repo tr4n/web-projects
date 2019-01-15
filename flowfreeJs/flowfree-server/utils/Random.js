@@ -5,12 +5,18 @@ const getInt = (first, second) => (first >= second) ? second : first + nextInt(s
 const getElement = (arrays) => arrays[nextInt(arrays.length)];
 
 const getProperty = (object) => {
-    const key =  getElement(Object.keys(object));
+    const key = getElement(Object.keys(object));
     return {
         key: key,
         value: object[key]
-    }    
+    }
 };
+
+const getPositionMap = (map) => ({
+    x: nextInt(map.length),
+    y: nextInt(map.length)
+});
+
 
 
 
@@ -19,5 +25,6 @@ module.exports = {
     nextInt,
     getInt,
     getElement,
-    getProperty
+    getProperty,
+    getPositionMap
 }

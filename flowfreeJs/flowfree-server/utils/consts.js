@@ -20,4 +20,11 @@ const DIRECT_MOVE = [{
     }
 ];
 const DIRECTS_SETS = ["0123", "2310", "1230", "0231", "3120", "1203", "0312", "1302", "3102", "3210", "2130", "2013"];
-const PORT = 5555; 
+const PORT = 5555;
+const VERTICAL = 32,
+    HORIZONTAL = 64;
+
+module.exports = {
+    VERTICAL,
+    HORIZONTAL
+}
