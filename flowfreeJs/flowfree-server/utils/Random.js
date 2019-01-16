@@ -1,8 +1,8 @@
-const int = (value) => (value <= 0 ? 0 : Math.floor(Math.random() * value));
+const under = (value) => (value <= 0 ? 0 : Math.floor(Math.random() * value));
 
-const between = (first, second) => (first >= second) ? second : first + int(second - first);
+const between = (first, second) => (first >= second) ? second : first + under(second - first);
 
-const from = (array) => array[int(array.length)];
+const from = (array) => array[under(array.length)];
 
 const property = (object) => {
     const key = from(Object.keys(object));
@@ -13,8 +13,8 @@ const property = (object) => {
 };
 
 const positionInMap = (map) => ({
-    x: int(map.length),
-    y: int(map.length)
+    x: under(map.length),
+    y: under(map.length)
 });
 
 
@@ -22,7 +22,7 @@ const positionInMap = (map) => ({
 
 
 module.exports = {
-    int: int,
+    under: under,
     between: between,
     from: from,
     property: property,

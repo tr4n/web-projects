@@ -23,10 +23,16 @@ const DIRECTS_SETS = ["0123", "2310", "1230", "0231", "3120", "1203", "0312", "1
 const PORT = 5555;
 const VERTICAL = 32,
     HORIZONTAL = 64;
-const MAPS_STORE = "maps.json";    
+const MAPS_STORE = "maps.json";
 
 module.exports = {
     VERTICAL,
     HORIZONTAL,
-    MAPS_STORE
+    MAPS_STORE,
+    DIRECTS_SETS,
+    DIRECT_MOVE,
+    TOP,
+    RIGHT,
+    BOTTOM,
+    LEFT
 }

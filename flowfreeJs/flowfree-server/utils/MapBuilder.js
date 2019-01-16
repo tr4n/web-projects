@@ -1,9 +1,14 @@
 const fs = require('fs');
 const Convert = require('./Convert');
 const Random = require('./Random');
-const Consts = require('./consts');
+const Const = require('./Const');
 const Domino = require('./Domino');
+const Model = require('./Model');
 
-let map = Domino.fillMap(6);
+let map = Domino.fillMap(5);
 
-console.log("\n--------------------\n", map);
+console.log(map, "\n--------------------\n");
+
+
+let domino = Domino.near(map, new Model.Point(map.length-1, map.length -1));
+console.log(domino);
