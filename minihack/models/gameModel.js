@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 
 const NameSchema = new Schema({
     gameId: {
-        type: String, 
+        type: String,
+        unique: true, 
         require: true
     },
     first: {

@@ -5,7 +5,8 @@ const RoundModel = require('../models/roundModel');
 const RoundRouter = require('./roundRouter');
 const path = require('path');
 
-GameRouter.get('/:id', (request, response) => {  
+GameRouter.get('/:id',async (request, response) => {  
+   
    response.sendFile(path.join(__dirname, '..','public/games/game.html'));
 });
 

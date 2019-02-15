@@ -25,6 +25,7 @@ $(document).ready(() => {
                         window.location.href = `/games/${gameId}`;
                     },
                     error(_xhr, _statusCode, error) {
+                        window.location.href = `/`
                         console.log(error);
 
                     }
