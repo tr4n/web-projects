@@ -1,0 +1,157 @@
++function ($) {
+  'use strict';
+
+  // FLYOUT PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Flyout = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Flyout.DEFAULTS, options)
+    this.transitioning = null
+
+    if (this.options.parent) this.$parent = $(this.options.parent)
+    if (this.options.toggle) this.toggle()
+  }
+
+  Flyout.DEFAULTS = {
+    toggle: true
+  }
+
+  Flyout.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('show.bs.flyout')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var actives = this.$parent && this.$parent.find('> .panel > .in')
+
+    if (actives && actives.length) {
+      var hasData = actives.data('bs.flyout')
+      if (hasData && hasData.transitioning) return
+      actives.flyout('hide')
+      hasData || actives.data('bs.flyout', null)
+    }
+
+    this.$element
+      .removeClass('flyout')
+      .addClass('flyouting')
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.$element
+        .removeClass('flyouting')
+        .addClass('flyout in')
+      this.transitioning = 0
+      this.$element.trigger('shown.bs.flyout')
+      $('body').addClass('active')
+      $('.header-wraper').addClass('active')
+      $('#tygh_main_container').addClass('active-menu')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      .one($.support.transition.end, $.proxy(complete, this))
+      .emulateTransitionEnd(350)
+  }
+
+  Flyout.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.flyout')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    this.$element
+      .addClass('flyining')
+      .removeClass('flyout')
+      .removeClass('in')
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.transitioning = 0
+      this.$element
+        .trigger('hidden.bs.flyout')
+        .removeClass('flyining')
+        .addClass('flyout')
+        $('body').removeClass('active')
+        $('.header-wraper').removeClass('active')
+        $('#tygh_main_container').removeClass('active-menu')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      .one($.support.transition.end, $.proxy(complete, this))
+      .emulateTransitionEnd(350)
+  }
+
+  Flyout.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+
+  // FLYOUT PLUGIN DEFINITION
+  // ==========================
+
+  var old = $.fn.flyout
+
+  $.fn.flyout = function (option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.flyout')
+      var options = $.extend({}, Flyout.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && option == 'show') option = !option
+      if (!data) $this.data('bs.flyout', (data = new Flyout(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  $.fn.flyout.Constructor = Flyout
+
+
+  // FLYOUT NO CONFLICT
+  // ====================
+
+  $.fn.flyout.noConflict = function () {
+    $.fn.flyout = old
+    return this
+  }
+
+
+  // FLYOUT DATA-API
+  // =================
+
+  $(document).on('click.bs.flyout.data-api', '[data-toggle=flyout]', function (e) {
+    var $this   = $(this), href
+    var target  = $this.attr('data-target')
+        || e.preventDefault()
+        || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
+    var $target = $(target)
+    var data    = $target.data('bs.flyout')
+    var option  = data ? 'toggle' : $this.data()
+    var parent  = $this.attr('data-parent')
+    var $parent = parent && $(parent)
+
+    if (!data || !data.transitioning) {
+      if ($parent) $parent.find('[data-toggle=flyout][data-parent="' + parent + '"]').not($this).addClass('flyouted')
+      $this[$target.hasClass('in') ? 'addClass' : 'removeClass']('flyouted')
+    }
+
+    $target.flyout(option)
+  })
+
+}(jQuery);
+$(document).click(function(event) {
+    if($('.active-menu').length>0){
+      if(!$(event.target).closest('.navbar-flyout').length) {
+          if($('.navbar-flyout').is(":visible")) {
+             //$('.action-menu-left').click();
+          }
+      }
+    }        
+})

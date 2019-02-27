@@ -1,0 +1,436 @@
+//nguyenlong
+var guid = function () {
+    if (!$.cookie.get('guid')) {
+        var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+        var d = new Date();
+        d.setTime(d.getTime() + (1000 * 24 * 60 * 60 * 365 * 5));
+        $.cookie.set('guid', guid, d, '/');
+        return guid;
+    } else {
+        return $.cookie.get('guid');
+    }
+};
+
+function responsive_products($element) {
+    if (!$element || $element === '') {
+        $element = '.responsive-products';
+    }
+    $($element).slick({
+        dots: true,
+        infinite: true,
+        speed: 300,
+        autoplay: true,
+        autoplaySpeed: 70000000,
+        slidesToShow: 5,
+        slidesToScroll: 5,
+        responsive: [
+            {
+                breakpoint: 600,
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 3
+                }
+            },
+            {
+                breakpoint: 480,
+                settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 2
+                }
+            }
+        ]
+    }).promise().done(function () {
+        fn_call_lazyload_image();
+    });
+}
+function fn_call_lazyload_image(){
+    $(".lazy-img").unveil(1, function() {
+        $(this).load(function() {
+            this.style.opacity = 1;
+        });
+    });
+}
+$(document).ready(function () {
+
+    $.smartbanner({
+        title: 'Vinabook.com',
+        author: 'Vinabook',
+        button: 'DOWNLOAD',
+        icon: '/design/themes/mobile_v1/media/images/icon-app.png',
+        inAppStore: 'Đã có trên App Store', // Text of price for iOS
+        inGooglePlay: 'Đã có trên Google Play',
+        price: 'FREE',
+        //force: 'ios',
+        onClose: function (ev)
+        {
+            $('html').removeClass('smartbanner-shown');
+            $('#smartbanner').remove();
+        },
+        onShow: function () {
+            $('html').addClass('smartbanner-shown');
+        }
+    });
+
+    responsive_products();
+    fn_call_lazyload_image();
+    $('.excerpt-view').slick({
+        dots: true,
+        infinite: true,
+        speed: 300,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: false,
+        adaptiveHeight: true,
+        centerMode: true,
+        variableWidth: true,
+        lazyLoad: 'progressive'
+    });
+    $('.slider-banner-home').slick({
+        dots: true,
+        infinite: true,
+        speed: 300,
+        autoplaySpeed: 400000,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: true,
+        adaptiveHeight: true,
+        lazyLoad: 'progressive'
+    });
+
+    if ($('.sticky-cart').length) {
+        $('#offset_cart').val($('.sticky-cart').offset().top);
+    }
+    $(window).scroll(function (e) {
+        if ($('.sticky-cart').length) {
+            $btcart = $('.sticky-cart');
+            $offset = $('#offset_cart').val();
+            if ($(this).scrollTop() > $offset && $btcart.css('position') != 'fixed') {
+                $('.sticky-cart').css({'position': 'fixed', 'top': '-1px', 'width': '101%', 'left': '-1px'});
+            }
+            if ($(this).scrollTop() < $offset && $btcart.css('position') == 'fixed') {
+                $('.sticky-cart').css({'position': 'static', 'top': '0px'});
+            }
+        }
+    });
+    $(document).on("click", ".wish-link-action", function (e) {
+        e.preventDefault();
+        var $this = this;
+        $(this).addClass('active');
+        var product_id = $($this).attr('data-product_id');
+        if (typeof product_id != 'undefined') {
+            var $data = new Array();
+            $data[product_id] = {
+                'product_id': product_id,
+                'amount': 1
+            };
+            $.ajax({
+                url: "?dispatch=wishlist.add_custom",
+                type: 'POST',
+                data: {'product_data': product_id},
+                success: function (data) {
+                    Tygh.$.ceNotification('show', {
+                        type: 'W',
+                        title: 'Thông báo',
+                        message: 'Đã thêm vào danh sách yêu thich của bạn'
+                    });
+                }
+            });
+        }
+    });
+
+    $(document).on("click", ".read-link-action", function (e) {
+        e.preventDefault();
+        var $this = this;
+        $(this).addClass('active');
+        var product_id = $($this).attr('data-product_id');
+        if (typeof product_id != 'undefined') {
+            var $data = new Array();
+            $data[product_id] = {
+                'product_id': product_id,
+                'amount': 1
+            };
+            $.ajax({
+                url: "?dispatch=wishlist.add_custom_read",
+                type: 'POST',
+                data: {'product_data': product_id},
+                success: function (data) {
+                    Tygh.$.ceNotification('show', {
+                        type: 'W',
+                        title: 'Thông báo',
+                        message: 'Đã thêm vào danh sách đã đọc của bạn'
+                    });
+                }
+            });
+        }
+    });
+
+
+    if ($('#product_detail_recommend_by_category').length > 0) {
+        var product_id = $('#product_detail_recommend_by_category').attr('data-product_id');
+        $.ajax({
+            url: fn_url('products.get_recommend_by_category'),
+            type: 'get',
+            data: {
+                product_id: product_id
+            },
+            dataType: 'json',
+            success: function (response) {
+                response = $.parseJSON(response.text);
+                var rp_html = response.html;
+                var rp_count = response.count;
+                if (rp_count > 0) {
+                    $("#product_detail_recommend_by_category").html(rp_html);
+                    responsive_products('#product_detail_recommend_by_category .responsive-products');
+                } else {
+                    $("#product_detail_recommend_by_category").fadeOut().remove();
+                }
+            }
+        });
+    }
+
+    if ($('#product_detail_other-people-buy-this').length > 0) {
+        var product_id = $('#product_detail_other-people-buy-this').attr('data-product_id');
+        $.ajax({
+            url: fn_url('products.get_recommend_other_people_buy_this'),
+            type: 'get',
+            data: {
+                product_id: product_id
+            },
+            dataType: 'json',
+            success: function (response) {
+                response = $.parseJSON(response.text);
+                var rp_html = response.html;
+                var rp_count = response.count;
+                if (rp_count > 0) {
+                    $("#product_detail_other-people-buy-this").html(rp_html);
+                    responsive_products('#product_detail_other-people-buy-this .responsive-products');
+                } else {
+                    $("#product_detail_other-people-buy-this").fadeOut().remove();
+                }
+            }
+        });
+    }
+    if ($('#product_detail_other-people-buy-this-small').length > 0) {
+        var product_id = $('#product_detail_other-people-buy-this-small').attr('data-product_id');
+        $.ajax({
+            url: fn_url('products.get_recommend_other_people_buy_this'),
+            type: 'get',
+            data: {
+                product_id: product_id,
+                style: 'small'
+            },
+            dataType: 'json',
+            success: function (response) {
+                response = $.parseJSON(response.text);
+                var rp_html = response.html;
+                var rp_count = response.count;
+                if (rp_count > 0) {
+                    $("#product_detail_other-people-buy-this-small").html(rp_html);
+                    responsive_products('#product_detail_other-people-buy-this-small .responsive-products');
+                } else {
+                    $("#product_detail_other-people-buy-this-small").fadeOut().remove();
+                }
+            }
+        });
+    }
+    $(document).on('click', '.reply-comment-action', function (e) {
+        $(this).parent().find('.comment-box-reply').fadeIn();
+    });
+    $(document).on('click', '.cancel-reply', function (e) {
+        $(this).parents('.comment-box-reply').fadeOut();
+    });
+
+    $('.product_notify_email_input').keypress(function (e) {
+        var $this = $(this);
+        if (e.which == 13) {
+            e.preventDefault();
+            $this.parent().find('.go-button').click();
+        }
+    });
+});
+
+
+if (typeof select_district === "undefined") {
+
+    select_district = function (state_code, country_code, address_type, district_id, elmChoose) {
+        if (elmChoose == false) {
+            var elm = $(".cm-district." + address_type);
+        } else {
+            var elm = elmChoose.parent().next().find('.cm-district');
+        }
+        var current_district = elm.parent().find('.current_district').val();
+        elm.children().remove();
+        elm.append("<option value=''>" + elm.parent().find(".select_district").val() + "</option>");
+        $.ajax({
+            url: "?dispatch=districts.ajax_district",
+            dataType: "jsonp",
+            data: {
+                state_code: state_code,
+                country_code: country_code
+            },
+            success: function (data) {
+                if (data.length > 0) {
+                    $('.select-districts input').hide().attr('disabled', 'disabled');
+                    var $html = '';
+                    $.each(data, function (i, item) {
+                        /*
+                         * Bug 1442 - Trang thông tin giao hàng: Chọn quận huyện, click Lưu --> lưu không thành công
+                         * Fixer: Hà Phan Minh
+                         * Date: 2014-04-08
+                         * Part 2
+                         */
+                        if (current_district == item.district_id) {
+                            $html = "<option value='" + item.district_id + "' selected='selected'>" + item.district_name + "</option>";
+                        } else {
+                            $html = "<option value='" + item.district_id + "'>" + item.district_name + "</option>";
+                        }
+                        elm.append($html);
+
+                    });
+                    select_ward(state_code, country_code, address_type, current_district, false, elm);
+                } else {
+                    // $('.select-districts select').hide().attr('disabled', 'disabled');
+                    $('.select-districts input').show().attr('disabled', false);
+                }
+            }
+        });
+    };
+}
+
+if (typeof select_street === "undefined") {
+    select_street = function (state_code, country_code, address_type, district_id) {
+        $(".cm-street." + address_type).children().remove();
+        $(".cm-street." + address_type).append("<option value=''>" + $("#select_street").val() + "</option>");
+        $.ajax({
+            url: "?dispatch=streets.ajax_street",
+            dataType: "jsonp",
+            data: {
+                state_code: state_code,
+                country_code: country_code,
+                district_id: district_id
+            },
+            success: function (data) {
+                if (data.length > 0) {
+                    $('.select-streets input').hide().attr('disabled', 'disabled');
+                    $('.select-streets select').show().attr('disabled', false);
+                    $.each(data, function (i, item) {
+                        $(".cm-street." + address_type).append("<option value='" + item.street_id + "'>" + item.street_name + "</option>");
+                    });
+                } else {
+                    $('.select-streets select').hide().attr('disabled', 'disabled');
+                    $('.select-streets input').show().attr('disabled', false);
+                }
+            }
+        });
+    };
+}
+if (typeof select_ward === "undefined") {
+    select_ward = function (state_code, country_code, address_type, district_id, ward_id, elm) {
+        if (elm == false) {
+            var elmWard = $(".cm-ward." + address_type);
+        } else {
+            var elmWard = elm.parent().next().find('.cm-ward');
+        }
+        var current_ward = elmWard.parent().find('.current_ward').val();
+        elmWard.children().remove();
+        elmWard.append("<option value=''>" + elmWard.parent().find(".select_ward").val() + "</option>");
+        $.ajax({
+            url: "?dispatch=wards.ajax_ward",
+            dataType: "jsonp",
+            data: {
+                state_code: state_code,
+                country_code: country_code,
+                district_id: district_id,
+                ward_id: ward_id
+            },
+            success: function (data) {
+                if (data.length > 0) {
+                    $('.select-wards input').hide().attr('disabled', 'disabled');
+                    $.each(data, function (i, item) {
+                        if (current_ward == item.ward_id) {
+                            elmWard.append("<option value='" + item.ward_id + "' selected='selected'>" + item.ward_name + "</option>");
+                        } else {
+                            elmWard.append("<option value='" + item.ward_id + "'>" + item.ward_name + "</option>");
+                        }
+                    });
+                } else {
+                    $('.select-wards input').show().attr('disabled', false);
+                }
+            }
+        });
+    };
+}
+
+$(document).ready(function () {
+    /**
+     * State Change
+     */
+
+    $(".cm-country").each(function (index) {
+        country_code = $(this).find('option:selected').val();
+        if (country_code == 'VN') {
+            $(this).parent().parent().find(".select-districts").find('label').addClass("cm-required");
+//            $(this).parent().parent().find(".select-districts").next().find('label').addClass("cm-required");
+        } else {
+            $(this).parent().parent().find(".select-districts").find('label').removeClass("cm-required");
+//            $(this).parent().parent().find(".select-districts").next().find('label').addClass("cm-required");
+        }
+    });
+
+    $(document).on('change', '.cm-country', function () {
+        country_code = $(this).find('option:selected').val();
+
+        if (country_code == 'VN') {
+            $(this).parent().parent().find(".select-districts").find('label').addClass("cm-required");
+            $('.billing-zip-code').addClass('hide').hide();
+            $('.select-ward').removeClass('hide').show();
+            
+//            $(this).parent().parent().find(".select-districts").next().find('label').addClass("cm-required");
+        } else {
+            $(this).parent().parent().find(".select-districts").find('label').removeClass("cm-required");
+            $('.billing-zip-code').removeClass('hide').show();
+            $('.select-ward').addClass('hide').hide();
+//            $(this).parent().parent().find(".select-districts").next().find('label').removeClass("cm-required");
+        }
+
+        $(this).parent().parent().find(".select-districts").find('select').children().remove();
+        $(this).parent().parent().find(".select-districts").find('select').append("<option value=''>" + $(this).parent().parent().find(".select-districts").parent().find(".select_district").val() + "</option>");
+        $(this).parent().parent().find(".select-districts").next().find('select').children().remove();
+        $(this).parent().parent().find(".select-districts").next().find('select').append("<option value=''>" + $(this).parent().parent().find(".select-districts").next().parent().find(".select_ward").val() + "</option>");
+    });
+
+    $(".select_state").each(function (index) {
+        address_type = $(this).hasClass("cm-location-shipping") ? "cm-location-shipping" : "cm-location-billing";
+        state_code = $(this).find('option:selected').val();
+        var country_code = $(".cm-country." + address_type).val();
+        select_district(state_code, country_code, address_type, false, $(this));
+    });
+
+    $(document).on('change', '.cm-state', function () {
+        address_type = $(this).hasClass("cm-location-shipping") ? "cm-location-shipping" : "cm-location-billing";
+        state_code = $(this).find('option:selected').val();
+        country_code = $(".cm-country." + address_type).val();
+        if (country_code == 'VN') {
+            $(this).parent().parent().find(".select-districts").find('label').addClass("cm-required");
+        } else {
+            $(this).parent().parent().find(".select-districts").find('label').removeClass("cm-required");
+        }
+        select_district(state_code, country_code, address_type, false, $(this));
+
+    });
+    /* Update | Hà Phan Minh | 2014-04-29 */
+    $(document).on('change', '.cm-district', function () {
+        address_type = $('.billing-state').find('.cm-state').hasClass("cm-location-shipping") ? "cm-location-shipping" : "cm-location-billing";
+        state_code = $('.cm-state').find('option:selected').val();
+        country_code = $(".cm-country." + address_type).val();
+        district_id = $(this).val();
+        select_street(state_code, country_code, address_type, district_id);
+        select_ward(state_code, country_code, address_type, district_id, false, $(this));
+    });
+    Tygh.$.ceEvent('on', 'ce.ajaxdone', function (elms, scripts, params, response_data, response_text) {
+        fn_call_lazyload_image();
+    });
+});

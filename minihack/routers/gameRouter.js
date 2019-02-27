@@ -7,7 +7,7 @@ const path = require('path');
 
 GameRouter.get('/:id',async (request, response) => {  
    
-   response.sendFile(path.join(__dirname, '..','public/games/game.html'));
+   response.sendFile(path.join(__dirname, '..','public/game.html'));
 });
 
 GameRouter.get('/getById/:id', (request, response) => {
