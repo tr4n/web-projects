@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MapChatTestFirst</string>
+    <string name="facebook_app_id">350699272200349</string>
+    <string name="fb_login_protocol_scheme">fb350699272200349</string>
+
+
+</resources>
