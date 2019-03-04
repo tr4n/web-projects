@@ -1,0 +1,27 @@
+.logo{
+    
+}
+
+.main-nav{
+    background: #2A80B9;
+}
+.main-nav-item {
+    width: 200px;       
+    height: 62px;
+    line-height: 62px; 
+    font-size: 20px;
+    font-style: bold; 
+    color: white; 
+   border: 1px #fff ; 
+   cursor: pointer;
+}
+.notification-item{
+    text-align: right;   
+    height: 62px;
+    line-height: 62px; 
+    font-size: 16px;
+    font-style: inherit; 
+    color: white; 
+   border: 1px #2A80B9 ; 
+   cursor: pointer;
+}
