@@ -1,3 +1,5 @@
+
+
 (function () {
     var _lastColor = null,
         _currentColor,
@@ -14,38 +16,56 @@
 
         _init = function () {
             var levels = {
-                '3': ['a1abc2bc'],
+                '3': ['a1abc2bc','1babc1c1a','1ca1bac1b','ab2cba1c','ccb3aab','c1ac1ab1b','2ccb1aab'],
+                '4': ['abc3d1a2cb2d'],
+                '5': ['d1d2ecb5a2ec4a1b'],
+                '6': ['abb2a6c1cd1e2d3f4e5f'],
+                '7': ['aa4g5gfb1c6c2dd1e1b4e11f'],
                 '8': ['2b7gfe5d10d1f3b1g2e1c2ca1h3a5h5'],
                 '15': ['4o1i9l6a11eb5g5e20j2g26n9f1f9l7h1o7n10j7c6pd3mc4h5p6im3kad23b2k1']
             };
-            
-            const gameId = window.location.pathname.split('/')[2] || 3;
+
+
+            const gameId = window.location.pathname.split('/')[2] || '3';
+            const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
             $.ajax({
                 url: `/games/getLevelById/${gameId}`,
-                type: "GET",              
+                type: "GET",
                 success(data) {
-                    console.log(data);                   
-                   _loadLevel(data.level);
-                   var grid = document.querySelector('.grid');
+                    console.log(data);
+                    let bug = false;
+                    for (let i = 0; i < gameId; i++) {
+                        if (data.level.indexOf(letters[i]) == -1) {
+                            bug = true;
+                            break;
+                        }
+                    }
 
-                   _size = parseInt(grid.getAttribute('data-size'));
-       
-                   Array.from(grid.querySelectorAll('div')).forEach(function (block, i) {
-                       var colorId = parseInt(block.getAttribute('data-id')),
-                           isPoint = block.getAttribute('data-point') === 'true';
-       
-                       block.setAttribute('data-i', i);
-       
-                       if ('ontouchstart' in document) {
-                           block.addEventListener('touchstart', _mouseDownHandler, false);
-                           block.addEventListener('touchmove', _mouseMoveHandler, false);
-                           block.addEventListener('touchend', _mouseUpHandler, false);
-                       } else {
-                           block.addEventListener('mousedown', _mouseDownHandler, false);
-                           block.addEventListener('mousemove', _mouseMoveHandler, false);
-                           block.addEventListener('mouseup', _mouseUpHandler, false);
-                       }
-                   });
+                    // var item = (levels[gameId])[Math.floor(Math.random()*levels[gameId].length)];
+                    const level = bug ? (levels[gameId])[Math.floor(Math.random() * levels[gameId].length)] : data.level;
+                    console.log(level);
+                    _loadLevel(level);
+
+                    var grid = document.querySelector('.grid');
+
+                    _size = parseInt(grid.getAttribute('data-size'));
+
+                    Array.from(grid.querySelectorAll('div')).forEach(function (block, i) {
+                        var colorId = parseInt(block.getAttribute('data-id')),
+                            isPoint = block.getAttribute('data-point') === 'true';
+
+                        block.setAttribute('data-i', i);
+
+                        if ('ontouchstart' in document) {
+                            block.addEventListener('touchstart', _mouseDownHandler, false);
+                            block.addEventListener('touchmove', _mouseMoveHandler, false);
+                            block.addEventListener('touchend', _mouseUpHandler, false);
+                        } else {
+                            block.addEventListener('mousedown', _mouseDownHandler, false);
+                            block.addEventListener('mousemove', _mouseMoveHandler, false);
+                            block.addEventListener('mouseup', _mouseUpHandler, false);
+                        }
+                    });
                 },
                 error(_xhr, _statusCode, error) {
                     console.log(error);
@@ -53,13 +73,13 @@
             });
 
 
-      
 
-        //    levels = ['a1abc2bc', '2b7gfe5d10d1f3b1g2e1c2ca1h3a5h5', '4o1i9l6a11eb5g5e20j2g26n9f1f9l7h1o7n10j7c6pd3mc4h5p6im3kad23b2k1'];
 
-      //      _loadLevel(levels[Math.floor(Math.random() * levels.length)]);
+            //    levels = ['a1abc2bc', '2b7gfe5d10d1f3b1g2e1c2ca1h3a5h5', '4o1i9l6a11eb5g5e20j2g26n9f1f9l7h1o7n10j7c6pd3mc4h5p6im3kad23b2k1'];
 
-          
+            //      _loadLevel(levels[Math.floor(Math.random() * levels.length)]);
+
+
         },
         _loadLevel = function (s) {
             var data = [];
@@ -150,7 +170,7 @@
                         b: 't',
                         l: 'r',
                         r: 'l'
-                    } [direction]));
+                    }[direction]));
                 }
             }
 
@@ -256,7 +276,7 @@
                                     b: 't',
                                     l: 'r',
                                     r: 'l'
-                                } [matchDirection]), '');
+                                }[matchDirection]), '');
                             } else {
                                 console.log('here: ' + _currentPath[_currentColor].length);
                                 console.log(_currentPath[_currentColor]);
@@ -276,7 +296,7 @@
                                 b: 't',
                                 l: 'r',
                                 r: 'l'
-                            } [matchDirection]), '');
+                            }[matchDirection]), '');
                             _currentPath[_currentColor].push(_currentBlock);
                         }
                     }

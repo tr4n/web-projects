@@ -17,8 +17,7 @@
     height: 90vmin;
     overflow: hidden;
     background: black;
-    position: absolute;
-   
+    position: absolute;   
     border: 1px solid #7F7042;
     box-sizing: border-box;
 }
